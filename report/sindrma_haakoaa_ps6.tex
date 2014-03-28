@@ -99,9 +99,35 @@ Vi har delt det opp, og har et felles bibilotek.
 \subsection{Testing}
 
 \section{Tester og resultater}
+Med unntak av konvergenstestene, så ble testene gjennomført ved å kjøre programmet ti ganger. Den største og minste kjøretiden ble fjernet, og gjennomsnittet ble regnet ut. Koden for testene under ble kompilert med de samme instillingene, det vil si at både MPI og OpenMP var aktivert. 
+Det vil si at vi kjørte programmene med \emph{mpirun} og heller varierte parameterene vi sendte med til kjøringen. Vi ville heller kjøre testene på en ekvivalent måte, enn å ha forsjellige måter å kjøre programmet på gitt forskjellige parametre. 
+
 \subsection{Konvergens med ulik p}
 
 \subsection{Kjøretid med forskellige p*t = 36}
+Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. Resultatet er vist i tabell \ref{p/t-table}.
+
+\begin{table}
+\begin{center}
+	
+	\begin{tabular}{c | c | c}
+	\hline \hline 
+	Antall prosesser      &    Antall tråder     &    Kjøretid (i sekunder) 	    \\ \hline	
+	12		      &		1	     &	  32.690540       		    \\ \hline
+	6		      &         2	     &    32.975599       		    \\ \hline
+	4		      &         3	     &    33.223129	    		    \\ \hline
+	3   		      &		2	     &    33.633001	    		    \\ \hline
+	2		      &         6	     &    34.279941	    		    \\ \hline
+	1		      &		12	     &    35.741616	    		    \\ \hline
+	
+	\end{tabular}
+\end{center}
+\caption{Kjøretider gitt forskjellige kompinasjoner av \emph{p} og \emph{t}.}
+\label{p/t-table}
+\end{table}
+
+Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder. Så i dette tilfellet lønner det seg dermed å kjøre programmene med kun en tråd. 
+Testene som følger denne vil dermed kun bruke en tråd og heller variere antall prosesser. 
 
 \subsubsection{Hvorfor kun MPI er raskest?}
 
