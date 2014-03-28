@@ -1,0 +1,6 @@
+# Latex uneccessairly files
+*.aux
+*.log
+*.pdf
+*.toc
+
