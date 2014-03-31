@@ -11,6 +11,7 @@
 \usepackage{courier} % Required for the courier font
 \usepackage{lipsum} % Used for inserting dummy 'Lorem ipsum' text into the template
 \usepackage[norsk]{babel}
+\usepackage{amsmath}
 
 % Margins
 \topmargin=-0.45in
@@ -67,7 +68,8 @@
 }
 % Insert date here if you want it to appear below your name
 
-% C code
+\newcommand{\ub}[1]{\underbar{$#1$}\,}
+
 
 \begin{document}
 \pagestyle{empty}
@@ -83,13 +85,52 @@
 \pagenumbering{arabic}
 
 \section{Introduksjon - Poisson-problemet}
-Litt om problemet
+Poisson-ligningen er en av de mest kjente partielle diffensialligingene, og skrives på formen:
+\begin{equation}
+	-\nabla^2 u = f
+\end{equation}
+Her er $\nabla^2$ kjent som Laplace-operatoren.\\
+\\
+Liginingen brukes som en matematisk modell til å beskrive flere fysiske systemer, som oftest diffusjonsprosesser. Eksempler på typiske fysiske fenomener er beregning av elektrisk felt i et domene, tilnærminger av flyt i fluidmekanikk, varmeoverføring uten varmetap. Poisson-ligingen dukker også opp når man skal regne ut egenverdier.\\
+\\
+Et poissonproblem er et problem der man skal finne en løsning til poisson-ligningen gitt en funksjon $f$ og et gitt domene med grensebetingelser. Grensebetingelsene må til for å få en unik løsning på problemet. Problemet som skal løses i denne øvingen lyder som følger:
+% Dette er tatt direkte fra ps6.tex %
+\begin{eqnarray}
+	-\nabla^2 u & = & f \hspace{.5in} \textrm{in} \,\,\, \Omega = (0,1)\times (0,1) \\
+	u & = & 0 \hspace{.5in} \textrm{on} \,\,\, \partial\Omega\, .
+\end{eqnarray}
+Her er $f$ en funksjon vi kjenner,  og $u$ er løsningen vi skal komme frem til. Vi har gitt at et enhetskvadrat  er vårt domenee, og at verdiene i kantene av dette kvadratet er $0$ (homogene Dirichlet grensebetingelser). Vi kan ikke gjøre noen antagelser om $f$, annet at den er reell.
+\emph{AM - Er den reell?}\\
+\\
+Siden denne skal løses på en datamaskin, må vi finne en tilnærming til løsningen $u$, siden en datamaskin har begrenset med ressurser (minne/regnekraft). Det er flere måter å diskretisere poisson-ligningen på (finite differences, finite elements and finite volumes \emph{AM - Hva heter dette på norsk?}), men alle disse ender opp med et sett med ligninger som kan skrives på formen:
+\begin{equation}
+  \ub{A} \ub{u} = \ub{g}
+\end{equation}
+
+\begin{figure}[t]
+	\label{fig:finite-difference}
+	\centering
+	\includegraphics[width=10cm]{img/finite-difference.png}	
+	\caption{Oppretting av et ligningsystem ved hjelp av endelige differanser. Figur funnet på \cite{rdw}. }
+	
+\end{figure}
+
+Siden \emph{TMA4280} underviser i endelige differanser, og dette er ofte beskrevet som den enkleste metoden, er dette også utgangspunktet for denne oppgaven. Oppgaven beskriver et todimensjonalt poissonproblem, og da fylles ligningssettet ut med en maske som vist i figur \ref{fig:finite-difference} (fempunktsformelen).
 
 \section{Mulige løsningsstragegier}
-Beskrivelse av poisson-problemet generelt.
-\subsection{Iterative}
-\subsection{Absolutte}
+Siden poisson-problemet dukker opp som en egnet matematisk modell for så mange fysiske problemer, er det blitt utviklet en rekke algoritmer for å løse dette problemet. Det finnes flere måter å løse et system av ligninger på, men ved å se på egenskapene til ligningssettet poisson-problemet genererer, finner man flere måter å optimalisere algoritmen på; både når det gjelder kjøretid og plassbruk.
+\subsection{Direkte metoder}
+Dirkete metoder løser et system med ligninger i et endelig og forutsigbart antall steg, og er spesielt egnet når matrisene er symmetriske og positivt definitt (som ligningssettet produsert ved hjelp av endelige differanser). Eksempelet på den mest generiske direkte metoden er LU-faktorisering, med følgende asymptotiske egenskaper:
+\begin{align*}
+      \mathcal{N}_{op} &\sim \mathcal{O}(N^3), \\
+      \mathcal{M} &\sim \mathcal{O}(N^2).
+\end{align*}
+Her er $\mathcal{N}_{op}$ antall FLOP og $\mathcal{M}$ minnebruk (i bytes).\\
+\\
+Det er ofte vanlig å utnytte at matrisen er \emph{AM - sparse} for å redusere minnebruk og antall flyttallsoperasjoner.
+\subsection{Iterative metoder}
 Sammenlign med vanlig LU-faktorisering. Ikke så veldig mye , men nok til å sette det i perspektiv.
+Generelt sett, drar iterative metoder fordel av at vi ikke lenger har noen krav om hvordan matrisen er lagret.
 
 \section{Beskrivelse av løsning}
 Vi har delt det opp, og har et felles bibilotek.
@@ -165,8 +206,12 @@ n/p & 1 & 2 & 4 & 8 & 12 & 24 & 36 & 48 & 96 \\
 \end{tabular}
 \end{table}
 
+\subsection{Ikke-homogene Dirichlet grensebetingelser}
+Les \cite[seksjon 3.2]{poisson-fdm} for beskrivelse av dette med 1D-problem.
 
+\subsection{Ikke enhetskvadrat}
+Siden løsningen ikke er iterativ, 
 \subsection{Forslag til forbedringer}
 
-
+\input{sections/bibliography.tex}
 \end{document}
