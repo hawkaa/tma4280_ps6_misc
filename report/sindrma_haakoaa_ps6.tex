@@ -69,6 +69,23 @@
 % Insert date here if you want it to appear below your name
 
 \newcommand{\ub}[1]{\underbar{$#1$}\,}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+\lstset{escapechar=@,style=customc}
 
 
 \begin{document}
@@ -91,9 +108,9 @@ Poisson-ligningen er en av de mest kjente partielle diffensialligingene, og skri
 \end{equation}
 Her er $\nabla^2$ kjent som Laplace-operatoren.\\
 \\
-Liginingen brukes som en matematisk modell til å beskrive flere fysiske systemer, som oftest diffusjonsprosesser. Eksempler på typiske fysiske fenomener er beregning av elektrisk felt i et domene, tilnærminger av flyt i fluidmekanikk, varmeoverføring uten varmetap. Poisson-ligingen dukker også opp når man skal regne ut egenverdier.\\
+Liginingen brukes som en matematisk modell til å beskrive flere fysiske systemer, som oftest diffusjonsprosesser. Eksempler på typiske fysiske fenomener hvor poisson-ligningen kan brukes som modell er beregning av elektrisk felt, tilnærminger av strømninger i fluider og varmeoverføring uten varmetap. Poisson-ligingen dukker også opp når man skal regne ut egenverdier.\\
 \\
-Et poissonproblem er et problem der man skal finne en løsning til poisson-ligningen gitt en funksjon $f$ og et gitt domene med grensebetingelser. Grensebetingelsene må til for å få en unik løsning på problemet. Problemet som skal løses i denne øvingen lyder som følger:
+Et poissonproblem er et problem der man skal finne en løsning til poisson-ligningen gitt en funksjon $f$ og et domene. Domenet har også grensebetingelser, slik at problemet har en unik løsning. Problemet vi skal løse i denne øvingen lyder som følgende:
 % Dette er tatt direkte fra ps6.tex %
 \begin{eqnarray}
 	-\nabla^2 u & = & f \hspace{.5in} \textrm{in} \,\,\, \Omega = (0,1)\times (0,1) \\
@@ -102,8 +119,9 @@ Et poissonproblem er et problem der man skal finne en løsning til poisson-ligni
 Her er $f$ en funksjon vi kjenner,  og $u$ er løsningen vi skal komme frem til. Vi har gitt at et enhetskvadrat  er vårt domenee, og at verdiene i kantene av dette kvadratet er $0$ (homogene Dirichlet grensebetingelser). Vi kan ikke gjøre noen antagelser om $f$, annet at den er reell.
 \emph{AM - Er den reell?}\\
 \\
-Siden denne skal løses på en datamaskin, må vi finne en tilnærming til løsningen $u$, siden en datamaskin har begrenset med ressurser (minne/regnekraft). Det er flere måter å diskretisere poisson-ligningen på (finite differences, finite elements and finite volumes \emph{AM - Hva heter dette på norsk?}), men alle disse ender opp med et sett med ligninger som kan skrives på formen:
+Siden denne skal løses på en datamaskin, og en datamaskin har begrenset med ressurser (minne/regnekraft), må vi finne en tilnærming til løsningen $u$. Det finnes flere måter å diskretisere poisson-ligningen på (finite differences, finite elements and finite volumes \emph{AM - Hva heter dette på norsk?}), men alle disse ender opp med et sett med ligninger som kan skrives på formen:
 \begin{equation}
+	\label{eq:linear-system}
   \ub{A} \ub{u} = \ub{g}
 \end{equation}
 
@@ -118,19 +136,29 @@ Siden denne skal løses på en datamaskin, må vi finne en tilnærming til løsn
 Siden \emph{TMA4280} underviser i endelige differanser, og dette er ofte beskrevet som den enkleste metoden, er dette også utgangspunktet for denne oppgaven. Oppgaven beskriver et todimensjonalt poissonproblem, og da fylles ligningssettet ut med en maske som vist i figur \ref{fig:finite-difference} (fempunktsformelen).
 
 \section{Mulige løsningsstragegier}
-Siden poisson-problemet dukker opp som en egnet matematisk modell for så mange fysiske problemer, er det blitt utviklet en rekke algoritmer for å løse dette problemet. Det finnes flere måter å løse et system av ligninger på, men ved å se på egenskapene til ligningssettet poisson-problemet genererer, finner man flere måter å optimalisere algoritmen på; både når det gjelder kjøretid og plassbruk.
+Når vi har fått et ligningssystem på formen vist i ligning \ref{eq:linear-system}, gjenstår det å finne en metode å løse dette på. Det finnes mange metoder, og noen av metodene utnytter egenskaper ved ligningssystemene fra poissonproblemet for å effektivisere plassforbruk og kjøretid.
 \subsection{Direkte metoder}
 Dirkete metoder løser et system med ligninger i et endelig og forutsigbart antall steg, og er spesielt egnet når matrisene er symmetriske og positivt definitt (som ligningssettet produsert ved hjelp av endelige differanser). Eksempelet på den mest generiske direkte metoden er LU-faktorisering, med følgende asymptotiske egenskaper:
 \begin{align*}
       \mathcal{N}_{op} &\sim \mathcal{O}(N^3), \\
       \mathcal{M} &\sim \mathcal{O}(N^2).
 \end{align*}
-Her er $\mathcal{N}_{op}$ antall FLOP og $\mathcal{M}$ minnebruk (i bytes).\\
+Her er $N$ antall ukjente,  $\mathcal{N}_{op}$ antall FLOP og $\mathcal{M}$ minnebruk (i bytes). Flere optimaliseringer av LU-faktoriseringer finnes, det er særlig vanlig å utnytte at matrisen er \emph{AM - sparse} for å redusere minnebruk og antall flyttallsoperasjoner. \\
 \\
-Det er ofte vanlig å utnytte at matrisen er \emph{AM - sparse} for å redusere minnebruk og antall flyttallsoperasjoner.
+Ved å utnytte ligningen som blir generert av fem-punktsformelen, kan vi diagonalisere ligningssystemet ved hjelp av egenvektorer og egenverdier. Egenskaper ved det to-dimensjonale poissonproblemet gjør at vi kan utnytte at ligningssytemet vårt kan representeres ved et tensorprodukt, og dette forenkler utregningen av egenvektorer og egenverdier.\\
+\\
+En av disse diagonaliseringsmetodene benytter seg av FFT (The Fast Fourier Transform), og har følgende asymptotiske egenskaper:
+\begin{align*}
+  \mathcal{N}_{op} &\sim \mathcal{O}(N \log N), \\
+  \mathcal{M} &\sim \mathcal{O}(N).
+\end{align*}
+Denne tilnærmet optimale løsningen er strategien vi skal bruke for å løse poisson-problemet i denne øvingen.
+\emph{AM - Hvorfor er denne optimal?}
+
 \subsection{Iterative metoder}
-Sammenlign med vanlig LU-faktorisering. Ikke så veldig mye , men nok til å sette det i perspektiv.
-Generelt sett, drar iterative metoder fordel av at vi ikke lenger har noen krav om hvordan matrisen er lagret.
+I tillegg til direkte metoder, har vi også iterative metoder. En slik metode vil oppdatere løsningen i iterasjoner, og vil (forhåpentligvis) komme nærmere og nærmere for hver gang. Iterative metoder har som oftest et uforutsigbart antall iterasjoner, og vil vanligvis måtte bli stoppet av et kriterium gitt av brukeren. Jo strengere kriterium, jo flere iterasjoner. Antall iterasjoner vil også kunne variere fra problem til problem, selv om man benytter seg av samme algoritme.\\
+\\
+Generelt sett, drar iterative metoder fordel av at vi ikke lenger har noen krav om hvordan matrisen er lagret, og at minnebruk ofte er proposjonalt med antall ukjente. I tillegg, består metodene ofte av grunnleggende matrise-vektor-operasjoner, som ofte er optimalisert i soft- og hardware. Til sist, er flere av disse metodene godt egnet for parallell prossesering.
 
 \section{Beskrivelse av løsning}
 Vi har delt det opp, og har et felles bibilotek.
@@ -205,6 +233,16 @@ n/p & 1 & 2 & 4 & 8 & 12 & 24 & 36 & 48 & 96 \\
 
 \end{tabular}
 \end{table}
+
+\subsection{Å gå bort fra $f=1$}
+\begin{figure}[h]
+	\centering
+	\lstinputlisting[frame=single, numbers=left]{code/local_f.c}
+	\caption{Gå fra $f=1$ til en hvilken som helst funksjon $f(x, y)$.}
+	\label{fig:setitimer}
+\end{figure}
+Vårt bibliotek ble fra dag én designet til å håndtere en hvilken som helst funksjon. For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres var å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe x- og y-verdier og multiplisere funksjonsverdiene inn i matrisen.
+
 
 \subsection{Ikke-homogene Dirichlet grensebetingelser}
 Les \cite[seksjon 3.2]{poisson-fdm} for beskrivelse av dette med 1D-problem.
