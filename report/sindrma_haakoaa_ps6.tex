@@ -324,10 +324,8 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 For å regne på disse verdiene, kjørte vi en rekke tester med forskjellig $p$ og $n$. Resultatene finnes i appendix, tabell \ref{table:wow_so_much_data}. På samtlige tester var $t=1$, som vi konluderte med etter å ha kjørt testen i seksjon \ref{subsection:runtime}.\\
 \\
 Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} fra disse kjøringene. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater, siden overheadet blir neglisjerbart.\\
-\\
-Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. \\
 
-Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}. Vi ser også at større problemstørrelse gir bedre speedup sammenlignet med mindre sett opp mot den teoretiske speedupen.  
+Vi var egentlig ganske misfornøyd med resultatene vist i figur \ref{fig:speedup}, da vi trodde at speedupen skulle være nærmere perfekt speedup. Dette endret seg raskt da vi fikk plottet den teoretiske speedupen (for $n = 16384$). Vi innså etter dette at vi har fått en veldig god speedup ved store problemstørrelser. Spesielt ved kjøringen med $n = 16384$, hvor speedupen er ganske nærme den teoretisk mulige speedupen. Et resultat som er verdt å merke seg er den dårlige speedupen ved små problemstørrelser. Grunnen er at det er et så stort overhead ved å sende meldinger, at dette går utover tiden som brukes på å løse selve problemet. Overheaded ved meldingssending kan en også se ut ifra effektivitetene til de lave problemstørrelsene gitt i figur \ref{fig:eff}. 
 
 
 \section{Diskusjon}
