@@ -236,8 +236,6 @@ Alle våre tidsmålinger er resulat av følgende prosess: Programmet ble kjørt 
 
 \subsection{Kjøretid med forskellige p*t = 36}
 \label{subsection:runtime}
-Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. Resultatet er vist i tabell \ref{p/t-table}.
-
 \begin{table}
 \begin{center}
 	
@@ -253,11 +251,11 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 	
 	\end{tabular}
 \end{center}
-\caption{Kjøretider gitt forskjellige kombinasjoner av \emph{p} og \emph{t}.}
+\caption{Kjøretider med $n = 16384$ gitt forskjellige kombinasjoner av \emph{p} og \emph{t}.}
 \label{p/t-table}
 \end{table}
 
-Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder, og at vi mister parallelitet i kommunikasjonen mellom prosessene (\emph{MPI\_Alltoallv} må kjøres serielt per kjerne). Så i dette tilfellet lønner det seg derfor å kjøre programmene med kun en tråd, siden MPI fordeler lasten på en bedre måte enn OpenMP. Vi er overbeviste om at flertrådsløsningen kan optimaliseres ytterligere, men at dette ikke er trivielt. Vi har derfor valgt å gjøre påfølgende tester med én tråd ($t=1$), og la MPI ta seg av lastbalanseringen.
+Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. På testene var $n = 16384$. Resultatet er vist i tabell \ref{p/t-table}. Som tabellen viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder, og at vi mister parallelitet i kommunikasjonen mellom prosessene (\emph{MPI\_Alltoallv} må kjøres serielt per kjerne). Så i dette tilfellet lønner det seg derfor å kjøre programmene med kun en tråd, siden MPI fordeler lasten på en bedre måte enn OpenMP. Vi er overbeviste om at flertrådsløsningen kan optimaliseres ytterligere, men at dette ikke er trivielt. Vi har derfor valgt å gjøre påfølgende tester med én tråd ($t=1$), og la MPI ta seg av paralleliseringen.
 
 \subsection{Verifisering av korrekthet - Konvergenstester}
 \begin{figure}[t]
@@ -372,7 +370,7 @@ For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det f
 Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske domenet, ikke det logiske. Det er derfor ingen endringer som må gjøres i FST-algoritmen eller i utregning av diagonalen. Siden vi benytter oss av en direkte metode, vil vi ikke lide av ytelsestap, noe iterative metoder ofte gjør.
 
 \subsection{Flaskehalser}
-Flaskehalsen i denne løsningen er definitivt transponeringen
+Flaskehalsen i denne løsningen er definitivt transponeringen. I løpet av algoritmen må hver prosess distribuere ut alle matriseelementete til alle de andre prosessene. Vi ser i ligning \ref{theo_s} at den teoretiske speedupen synker raskt ved økning av problemstørrelser. Det er mulig man kan gjøre små modifikasjoner i funksjonene i \emph{ps6\_common\_library}, men disse endringene vil ikke være dominante.
 
 \input{sections/bibliography.tex}
 \end{document}
