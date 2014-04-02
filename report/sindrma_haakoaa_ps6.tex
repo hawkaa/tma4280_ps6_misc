@@ -60,7 +60,6 @@
 \end{center}
 \vspace{0cm}
 \begin{center}
-	\includegraphics[width=10cm]{img/kongull.jpg}
 \end{center}
 \vspace*{\stretch{3}}
 \begin{center}
@@ -270,7 +269,7 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 Samtidig med testingen utført i seksjon \ref{subsection:runtime}, verifiserte vi også at de samme $p$- og $t$-verdier gav riktige resultater. Vi kjørte \emph{convergence} på intervallet n=8 til n=16384 og plottet resultatene opp mot ${1 \over x^2}$ i et log-log-plot. Dersom linjen som viser maksimal feil er parallell med referansefunksjonen, kan vi konkludere med at løsningen konvergerer og følgelig er korrekt. Samtlige kjøringer med ulike $p$- og $t$-verdier konvergerte. Kjøring med ($p=12$, $t=3$) og ($p=36$, $t=1$) er vist i figur \ref{fig:convergence}.
 
 \subsection{Speedup og effektivitet}
-
+\label{subsection:speedup_efficiency}
 Speedup sier noe om hvilken faktor vi ønsker at kjøretiden skal bli redusert med. Speedup er definert i ligning \ref{speedup}, der $S_p$ er speedupen, $T_1$ er kjøretiden på en prosess og $T_p$ er kjøretiden på $P$ prosesser. Det vi ser i ligning \ref{speedup} er det vi kaller perfekt speedup, som vil si at kjøretiden reduseres med en faktor proporsjonal med antall prosesser. Gitt perfekt speedup ser vi da at $T_p$ må være definert som kjøretiden på en prosess, $T_1$, dividert med antall prosesser P som vist i ligning \ref{t_p}.  
 
 \begin{equation}
@@ -325,15 +324,16 @@ For å regne på disse verdiene, kjørte vi en rekke tester med forskjellig $p$ 
 \\
 Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} fra disse kjøringene. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater, siden overheadet blir neglisjerbart.\\
 
-Vi var egentlig ganske misfornøyd med resultatene vist i figur \ref{fig:speedup}, da vi trodde at speedupen skulle være nærmere perfekt speedup. Dette endret seg raskt da vi fikk plottet den teoretiske speedupen (for $n = 16384$). Vi innså etter dette at vi har fått en veldig god speedup ved store problemstørrelser. Spesielt ved kjøringen med $n = 16384$, hvor speedupen er ganske nærme den teoretisk mulige speedupen. Et resultat som er verdt å merke seg er den dårlige speedupen ved små problemstørrelser. Grunnen er at det er et så stort overhead ved å sende meldinger, at dette går utover tiden som brukes på å løse selve problemet. Overheaded ved meldingssending kan en også se ut ifra effektivitetene til de lave problemstørrelsene gitt i figur \ref{fig:eff}. 
+Vi var egentlig ganske misfornøyd med resultatene vist i figur \ref{fig:speedup}, da vi trodde at speedupen skulle være nærmere perfekt speedup. Dette endret seg raskt da vi fikk plottet den teoretiske speedupen (for $n = 16384$). Vi innså etter dette at vi har fått en veldig god speedup ved store problemstørrelser. Spesielt ved kjøringen med $n = 16384$, hvor speedupen er ganske nærme den teoretisk mulige speedupen. Dette indikerer at løsningen vår har god lastbalansering. Et resultat som er verdt å merke seg er den dårlige speedupen ved små problemstørrelser. Grunnen er at det er et så stort overhead ved å sende meldinger, at dette går utover tiden som brukes på å løse selve problemet. Overheaded ved meldingssending kan en også se ut ifra effektivitetene til de lave problemstørrelsene gitt i figur \ref{fig:eff}. 
 
 \subsection{Kjøretid}
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=12cm]{img/runtime_n.png}
 	\caption{Kjøretid ved ulike problemstørrelser}		
-	\label{fig:eff}
+	\label{fig:runtime_n}
 \end{figure}
+Vi har også valgt å plotte kjøretidene som funksjon av problemstørrelse i et loglog-plot (se figur \ref{fig:runtime_n}). Dette gjorde vi for å sjekke om kjøretiden vokste med $o(n^2 \log n)$ for ulikt antall prosesser. Dersom linjene i figuren vokser likt med referanselinjen (rød), indikerer dette at kjøretiden vokser som den skal. Vi observerer at dette er tilfelle for få antall prosesser, selv med små problemstørrelser. Når vi får flere prosesser, må vi opp i problemstørrelse for at kjøretiden vokser som den skal. Dette underbygger også konklusjonen i seksjon \ref{subsection:speedup_efficiency}, som sier at overheadet med stor $p$ dominerer ved små problemstørrelser.
 
 
 \section{Diskusjon}
@@ -363,8 +363,16 @@ For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det f
 Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske domenet, ikke det logiske. Det er derfor ingen endringer som må gjøres i FST-algoritmen eller i utregning av diagonalen. Siden vi benytter oss av en direkte metode, vil vi ikke lide av ytelsestap, noe iterative metoder ofte gjør.
 
 \subsection{Flaskehalser}
-Flaskehalsen i denne løsningen er definitivt transponeringen. I løpet av algoritmen må hver prosess distribuere ut alle matriseelementete til alle de andre prosessene. Vi ser i ligning \ref{theo_s} at den teoretiske speedupen synker raskt ved økning av problemstørrelser. Det er mulig man kan gjøre små modifikasjoner i funksjonene i \emph{ps6\_common\_library}, men disse endringene vil ikke være dominante.
-
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=12cm]{img/gprof.png}
+	\caption{Profilering med gprof av \emph{poisson\_parallel}.}		
+	\label{fig:gprof}
+\end{figure}
+Flaskehalsen i denne løsningen er definitivt transponeringen. I løpet av algoritmen må hver prosess distribuere ut alle matriseelementete til alle de andre prosessene. Vi ser i ligning \ref{theo_s} at den teoretiske speedupen synker raskt ved økning av problemstørrelser.\\
+\\
+Vi har potensiale til å forbedre funksjonene i \emph{ps6\_common\_library}, men etter å ha kjørt en test med GNU profiler, ser vi at ingen av våre funksjoner er hotspots, og eventuelle forbedringer bør gjøres i den medfølgende \emph{fft}-funksjonen. Vi er likevel overbevist om at ingen av disse endringene vil dominere over tiden det tar å transponere matrisen.
+\newpage
 \input{sections/bibliography.tex}
 
 \section{Appendix}
