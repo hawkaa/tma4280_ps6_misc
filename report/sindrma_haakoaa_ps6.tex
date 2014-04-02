@@ -116,9 +116,9 @@ Et poissonproblem er et problem der man skal finne en løsning til poisson-ligni
 	-\nabla^2 u & = & f \hspace{.5in} \textrm{in} \,\,\, \Omega = (0,1)\times (0,1) \\
 	u & = & 0 \hspace{.5in} \textrm{on} \,\,\, \partial\Omega\, .
 \end{eqnarray}
-Her er $f$ en funksjon vi kjenner,  og $u$ er løsningen vi skal komme frem til. Vi har gitt at et enhetskvadrat  er vårt domenee, og at verdiene i kantene av dette kvadratet er $0$ (homogene Dirichlet grensebetingelser). \emph{AM - Hvilke forutsetninger kan vi gjøre om f?}\\
+Her er $f$ en funksjon vi kjenner,  og $u$ er løsningen vi skal komme frem til. Vi har gitt at et enhetskvadrat  er vårt domenee, og at verdiene i kantene av dette kvadratet er $0$ (homogene Dirichlet grensebetingelser). En annen forutsetning er at $f$ må ligge i L2.\\
 \\
-Siden denne skal løses på en datamaskin, og en datamaskin har begrenset med ressurser (minne/regnekraft), må vi finne en tilnærming til løsningen $u$. Det finnes flere måter å diskretisere poisson-ligningen på (finite differences, finite elements and finite volumes \emph{AM - Hva heter dette på norsk?}), men alle disse ender opp med et sett med ligninger som kan skrives på formen:
+Siden denne skal løses på en datamaskin, og en datamaskin har begrenset med ressurser (minne/regnekraft), må vi finne en tilnærming til løsningen $u$. Det finnes flere måter å diskretisere poisson-ligningen på, blant annet endelige differanser, endelige elementer og endelige volumer. Felles for disse er at alle ender opp med et sett med ligninger som kan skrives på formen:
 \begin{equation}
 	\label{eq:linear-system}
   \ub{A} \ub{u} = \ub{g}
@@ -128,7 +128,7 @@ Siden denne skal løses på en datamaskin, og en datamaskin har begrenset med re
 	\label{fig:finite-difference}
 	\centering
 	\includegraphics[width=10cm]{img/finite-difference.png}	
-	\caption{Oppretting av et ligningsystem ved hjelp av endelige differanser. Figur funnet på \cite{rdw}. }
+	\caption{Oppretting av et ligningsystem ved hjelp av endelige differanser. Figur funnet i \cite{rdw}. }
 	
 \end{figure}
 
@@ -142,17 +142,16 @@ Dirkete metoder løser et system med ligninger i et endelig og forutsigbart anta
       \mathcal{N}_{op} &\sim \mathcal{O}(N^3), \\
       \mathcal{M} &\sim \mathcal{O}(N^2).
 \end{align*}
-Her er $N$ antall ukjente,  $\mathcal{N}_{op}$ antall FLOP og $\mathcal{M}$ minnebruk (i bytes). Flere optimaliseringer av LU-faktoriseringer finnes, det er særlig vanlig å utnytte at matrisen er \emph{AM - sparse} for å redusere minnebruk og antall flyttallsoperasjoner. \\
+Her er $N$ antall ukjente,  $\mathcal{N}_{op}$ antall FLOP og $\mathcal{M}$ minnebruk (i bytes). Flere optimaliseringer av LU-faktoriseringer finnes, det er særlig vanlig å utnytte at matrisen er glissen for å redusere minnebruk og antall flyttallsoperasjoner. \\
 \\
-Ved å utnytte ligningen som blir generert av fem-punktsformelen, kan vi diagonalisere ligningssystemet ved hjelp av egenvektorer og egenverdier, siden disse da er lett å regne ut. Grunnen til dette er at ligningssystemet vårt kan representeres ved et tensorprodukt.\\
+Ved å utnytte ligningen som blir generert av fem-punktsformelen, kan vi diagonalisere ligningssystemet ved hjelp av egenvektorer og egenverdier, siden disse da er lette å regne ut. Grunnen til dette er at ligningssystemet vårt kan representeres ved et tensorprodukt.\\
 \\
 En av disse diagonaliseringsmetodene benytter seg av FFT (The Fast Fourier Transform), og har følgende asymptotiske egenskaper:
 \begin{align*}
   \mathcal{N}_{op} &\sim \mathcal{O}(N \log N), \\
   \mathcal{M} &\sim \mathcal{O}(N).
 \end{align*}
-Denne tilnærmet optimale løsningen er strategien vi skal bruke for å løse poisson-problemet i denne øvingen. Dette forutsetter at funksjonen $u$ er periodisk.
-\emph{AM - Hvorfor er denne optimal? Hva forutsetter den?}
+Denne tilnærmet optimale løsningen er strategien vi skal bruke for å løse poisson-problemet i denne øvingen. FFT har et konstant minnebruk og et arbeid på $\log N$ per frihetsgrad, hvilket er veldig bra.
 
 \subsection{Iterative metoder}
 I tillegg til direkte metoder, har vi også iterative metoder. En slik metode vil oppdatere løsningen i iterasjoner, og vil (forhåpentligvis) komme nærmere og nærmere for hver gang. Iterative metoder har som oftest et uforutsigbart antall iterasjoner, og vil vanligvis måtte bli stoppet av et kriterium gitt av brukeren. Jo strengere kriterium, jo flere iterasjoner. Antall iterasjoner vil også kunne variere fra problem til problem, selv om man benytter seg av samme algoritme.\\
@@ -161,16 +160,37 @@ Generelt sett, drar iterative metoder fordel av at vi ikke lenger har noen krav 
 \\
 Eksempler på iterative metoder er \emph{Gauss-Jacobi}, \emph{Gauss-Seidel}, \emph{Generalized minimum residuial method} og \emph{Conjugate gradient method}. Brukt riktig, kan disse metodene være svært kraftige.
 
-\section{Beskrivelse av løsning}
-Vi har delt det opp, og har et felles bibilotek.
+\section{Programkomponenter}
+Rent overordnet har vi valgt å skrive nesten all kode i et felles bibliotek, og koblet på flere små programmer med ulike bruksområder. Det blir ingen nøye gjennomgang av koden i denne rapporten, da det befinner seg mange gode og beskrivende kommentarer der. Flere av funksjonene implementert regnes også som kjent av leseren av dette dokumentet, siden de er beskrevet i \cite{fast-poisson}. Det anbefales også å ta en titt på testene (beskrevet i seksjon \ref{subsection:unittest} og \ref{subsection:mpi_unittest}) for å få en dypere forståelse for input og forventet output.
 
-\subsection{Ulike programkomponenter}
-\subsubsection{poisson}
-\subsubsection{convergence}
+\paragraph{Testing}
+Vi bestemte oss tidlig for at det var langt viktigere med et program som gav riktig resultat enn et program som kjørte raskt. Vi har derfor hatt stor vekt på både enhets-testing og korrekthetstesting av løsning (konvergenstest) under utviklingen. Når programmet var ferdig, hadde vi derfor tilstrekkelig testdekning til å gjøre optimaliseringer. Bruk av tester har også forenklet kommunikasjonen mellom gruppens to medlemmer.
 
-\section{Om hardware og kompilator, biblioteker mm.}
+\paragraph{Tilstand}
+Alle funksjoner i \emph{ps6\_common\_library} er bevisst programmert uten tilstand, og dette fører ofte til at parameterlistene er ganske lange. Dette er kun for å forenkle enhetstestene våre. Vi er ikke kjent med overhead knyttet til parameterpassing kontra globalt definerte variabler, men vi antar at det er neglisjerbart.
 
-\subsection{Testing}
+\subsection{ps\_6\_common\_library}
+Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire "inngangs"-funksjoner:
+\begin{itemize}
+	\item \emph{haha}
+\end{itemize}
+
+\subsection{possion}
+
+\subsection{convergence}
+
+\subsection{unittest}
+\label{subsection:unittest}
+
+\subsection{mpi\_unittest}
+\label{subsection:mpi_unittest}
+Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med \emph{mpirun}, og 
+
+\subsection{poisson\_orig}
+Vi valgte å ta vare på det originale programmet vi fikk utlevert sammen med øvingen, slik at vi har et utgangpsunkt og mulighet til å sammenligne resultater.
+
+
+\section{Poisson\_parallel()}
 
 \section{Tester og resultater}
 Med unntak av konvergenstestene, så ble testene gjennomført ved å kjøre programmet ti ganger. Den største og minste kjøretiden ble fjernet, og gjennomsnittet ble regnet ut. Koden for testene under ble kompilert med de samme instillingene, det vil si at både MPI og OpenMP var aktivert. 
@@ -203,9 +223,11 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder. Så i dette tilfellet lønner det seg dermed å kjøre programmene med kun en tråd. 
 Testene som følger denne vil dermed kun bruke en tråd og heller variere antall prosesser. 
 
-\subsubsection{Hvorfor kun MPI er raskest?}
 
 \subsection{Speedup og effektivitet}
+
+
+\section{Diskusjon og konklusjon}
 
 
 \subsection{Å gå bort fra $f=1$}
@@ -216,7 +238,6 @@ Testene som følger denne vil dermed kun bruke en tråd og heller variere antall
 	\label{fig:local_f}
 \end{figure}
 For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe $x$- og $y$-verdier og multiplisere funksjonsverdiene inn i matrisen. For å få dette til å kjøre i parallell måtte vi gjøre noen små justeringer når det gjaldt mapping fra lokale indekser til $x$- og $y$-verdier. Hver prossess lagrer kun sine egne rader, og en indeks til en rad i sin delvise (lokale) matrise vil mappe til en indeks i den fullstendige (globale) matrisen. Vi måtte derfor plusse på et offset på rad-indeksen når vi regnet ut verdien av $y$. Å gå fra $f=1$ til $f(x, y)$ fjerner med andre ord ikke noe parallelt potensiale, siden løkken som legger inn verdier i $\ub{B}$ ikke får noen avhengigheter som gjør at den ikke kan paralleliseres.
-
 
 \subsection{Ikke-homogene Dirichlet grensebetingelser}
 \begin{figure}[h]
@@ -229,11 +250,10 @@ Dersom $u \neq 0$ i $\partial\Omega$, får vi ikke-homogene Dirichlet grensebeti
 \\
 Siden vi benytter oss av \emph{Fast Sine Transform} i denne oppgaven, må vi også være observante på hvordan grenseverdiene er definert. Dersom de er definert som Dirichlet grensebetingelser (vi kjenner verdien av $u(x, y)$ hvor $(x, y)\ \epsilon\ \partial\Omega$) vil sinustransformen fremdeles fungere.\\
 
-\subsection{Possonproblemet der $\Omega = (0, L_x) \times (0, L_y)$}
-For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det flere ting som må gjøres. For det første må vi gjøre om $h$ til $h_x = {L_x \over n}$ og $h_y = {L_y \over n}$. Mappingen på linjene 2 og 3 i figur \ref{fig:local_f} måtte da justeres til å ta høyde for disse ved å multiplisere hver indeks med korresponderende $h$-verdi i stedet for å dividere på $n$. I tillegg til dette må vi regne ut en ny diagonal med egenverdier. \emph{AM, hjelp!!}. Ingen av disse grepene vil påvirke den parallelle implementasjonen, siden matrisen fortsatt lar seg dele opp i rader.\\
+\subsection{Piossonproblemet der $\Omega = (0, L_x) \times (0, L_y)$}
+For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det flere ting som må gjøres. For det første må vi gjøre om $h$ til $h_x = {L_x \over n}$ og $h_y = {L_y \over n}$. Mappingen på linjene 2 og 3 i figur \ref{fig:local_f} måtte da justeres til å ta høyde for disse ved å multiplisere hver indeks med korresponderende $h$-verdi i stedet for å dividere på $n$. I tillegg vil vi ikke lenger kunne multiplisere inn $h^2$ i steg 1, så steg 2 må modifiseres til å håndtere dette.\\
 \\
-Siden \emph{Fast Fourier Transform}-metoden er direkte, lider vi ikke av ytelsestap ved å endre på forholdet mellom $L_x$ og $L_y$, slik som iterative metoder ofte gjør.
-
+Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske domenet, ikke det logiske. Det er derfor ingen endringer som må gjøres i FST-algoritmen eller i utregning av diagonalen. Siden vi benytter oss av en direkte metode, vil vi ikke lide av ytelsestap, noe iterative metoder ofte gjør.
 \subsection{Forslag til forbedringer}
 
 \input{sections/bibliography.tex}
