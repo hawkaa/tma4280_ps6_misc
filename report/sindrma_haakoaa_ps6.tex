@@ -165,7 +165,7 @@ Eksempler på iterative metoder er \emph{Gauss-Jacobi}, \emph{Gauss-Seidel}, \em
 Rent overordnet har vi valgt å skrive nesten all kode i et felles bibliotek, og koblet på flere små programmer med ulike bruksområder. Det blir ingen nøye gjennomgang av koden i denne rapporten, da det befinner seg mange gode og beskrivende kommentarer der. Flere av funksjonene implementert regnes også som kjent av leseren av dette dokumentet, siden de er beskrevet i \cite{fast-poisson}. Det anbefales også å ta en titt på testene (beskrevet i seksjon \ref{subsection:unittest} og \ref{subsection:mpi_unittest}) for å få en dypere forståelse for input og forventet output.
 
 \paragraph{Testing}
-Vi bestemte oss tidlig for at det var langt viktigere med et program som gav riktig resultat enn et program som kjørte raskt. Vi har derfor hatt stor vekt på både enhets-testing og korrekthetstesting av løsning (konvergenstest) under utviklingen. Når programmet var ferdig, hadde vi derfor tilstrekkelig testdekning til å gjøre optimaliseringer. Bruk av tester har også forenklet kommunikasjonen mellom gruppens to medlemmer.
+Vi bestemte oss tidlig for at det var langt viktigere med et program som gav riktig resultat enn et program som kjørte raskt. Vi har derfor hatt stor vekt på både enhets-testing og korrekthetstesting av løsning (konvergenstest) under utviklingen. Når programmet var ferdig, hadde vi derfor tilstrekkelig testdekning til å gjøre optimaliseringer. Bruk av tester har også forenklet kommunikasjonen mellom gruppens to medlemmer. Vi brukte C++-rammeverket \emph{Google Test} til løsningen, og støtte for dette er implementert i vår \emph{CMakeLists.txt}.
 
 \paragraph{Tilstand}
 Alle funksjoner i \emph{ps6\_common\_library} er bevisst programmert uten tilstand, og dette fører ofte til at parameterlistene er ganske lange. Dette er kun for å forenkle enhetstestene våre. Vi er ikke kjent med overhead knyttet til parameterpassing kontra globalt definerte variabler, men vi antar at det er neglisjerbart.
@@ -176,7 +176,7 @@ Vi har dessverre ikke hatt fokus på å utvikle løsningen vår til å la seg ko
 \subsection{ps\_6\_common\_library}
 Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire inngangsfunksjoner:
 \begin{itemize}
-	\item \emph{poisson\_parallel} - Denne funksjonen er vår paralelle implementasjon av det medfølgende poisson-programmet. Den tar inn en problemstørrelse $n$ og en funksjon $f$. Man har også mulighet til å sende inn en peker til en tidsvariabel, som vil fylles opp med tiden det tar fra algoritmen starter til den slutter. Til slutt, har du mulighet til å sende med en referansefunksjon $u$, og hvis denne er satt, vil funksjonen returnere maksimal feil i løsningen. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat. \emph{poisson\_parallel} blir beskrevet nøyere i seksjon \ref{section:poisson_parallel}
+	\item \emph{poisson\_parallel} - Denne funksjonen er vår paralelle implementasjon av det medfølgende poisson-programmet. Den tar inn en problemstørrelse $n$ og en funksjon $f$. Man har også mulighet til å sende inn en peker til en tidsvariabel, som vil fylles opp med tiden det tar fra algoritmen starter til den slutter. Til slutt, har du mulighet til å sende med en referansefunksjon $u$, og hvis denne er satt, vil funksjonen returnere maksimal feil i løsningen. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat. \emph{poisson\_parallel} blir beskrevet nøyere i seksjon \ref{section:poisson_parallel}.
 	\item \emph{poisson} - Gjør akkurat det samme som \emph{poisson\_parallel}, med de samme parameterne. Denne er ikke konfigurert til å kjøre i paralell. Vi har valgt å ha med denne funksjonen, siden den har fungert som et nyttig sammenligningsgrunnlag under utviklingen.
 	\item \emph{transpose\_paralell} - Denne metoden transponerer en matrise i parallell. Denne metoden har vært svært nyttige for oss under utviklingen, da transponering i paralell var en stor og vanskelig del av oppgaven. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat.
 	\item \emph{transpose} - Seriell implementasjon av transponering.
@@ -190,6 +190,7 @@ Dette programmet tar inn en problemstørrelse og antall kjøringer. Den vil gi d
 Dette programmet tar inn et intervall med problemstørrelser, og printer maksimal feil per problemstørrelse. Dette er for å teste om løsningen vår er korrekt, det vil si at den konvergerer (hvis vi dobler n, skal feilen bli fire ganger så liten). For å visualisere dette grafisk, kan man kjøre \emph{make convergence-plot}. Dette krever at man har gnuplot installert på maskinen.
 
 \subsection{poisson\_speedup}
+Dette programmet tar inn et intervall med problemstørrelser og antall ganger man ønsker at hver programstørrelse skal bli kjørt. Dette programmet vil printe ut gjennomsnittlig kjøretid per problemstørrelse.
 
 \subsection{unittest}
 \label{subsection:unittest}
@@ -197,7 +198,7 @@ Dette c++-programmet kjører enhetstester på funksjoner som kan testes i en ser
 
 \subsection{mpi\_unittest}
 \label{subsection:mpi_unittest}
-Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med kommandoen \emph{make test-mpi}, som igjen kaller \emph{mpirun} med 8 prosesser.
+Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode i et eget program, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med kommandoen \emph{make test-mpi}, som igjen kaller \emph{mpirun} med 8 prosesser.
 
 \subsection{poisson\_orig}
 Vi valgte å ta vare på det originale programmet vi fikk utlevert sammen med øvingen, slik at vi har et utgangpsunkt og mulighet til å sammenligne resultater.
@@ -216,7 +217,7 @@ Siden dette er den desidert viktigste funksjonen i vårt program, krever den en 
 \\
 For å transponere matrisen i en parallell kontekst, har vi fulgt veiledningen i \cite{fast-poisson}. Denne går ut på å utnytte \emph{MPI\_Alltoallv}-kallet til å få alle prosesser til å sende og motta data fra hverandre. For å få til dette må man lage sendebuffere med tilhørende størrelses- og forskyvningsvektorer.\\
 \\
-For å paralellisere med OpenMP, har vi slått sammen så mange løkker som mulig og dekorert disse med \emph{\#pragma omp parallel for}. I tillegg til dette, må vi utvide lagringsplassen til det midlertidige \emph{fst}-bufferet $z$, slik at hver tråd får sitt eget buffer. Dette er gjort ved hjelp av OpenMP-kallene \emph{omp\_get\_max\_threads()} og \emph{omp\_get\_thread\_num()}.\\
+For å paralellisere med OpenMP, har vi slått sammen så mange løkker som mulig og dekorert disse med \emph{\#pragma omp parallel for}. I tillegg til dette, utvidet vi lagringsplassen til det midlertidige \emph{fst}-bufferet $z$, slik at hver tråd får sitt eget buffer. Logikken bak dette er gjort ved hjelp av OpenMP-kallene \emph{omp\_get\_max\_threads()} og \emph{omp\_get\_thread\_num()}.\\
 \\
 Hybrid-løsningen med både MPI og OpenMP, har totalt tre fork/joins og to alle-til-alle kommunikasjonsbolker. Profilen er vist i figur \ref{fig:poisson-parallel}. 
 
@@ -229,7 +230,8 @@ Alle våre tester er kjørt på Kongull-clusteret. Dette clusteret benytter seg 
 Ved kompilering, hadde vi lastet inn modulene \emph{intelcomp/11.1.059}, \emph{cmake/2.8.7} og \emph{openmpi/1.4.3-intel}. CMake ble konfigurert med \emph{CMAKE\_BUILD\_TYPE=1}, \emph{ENABLE\_OPENMP=1} og \emph{ENABLE\_MPI=1}, og gitt environmentvariablene \emph{CC=icc}, \emph{CXX=icpc} og \emph{FC=ifort}. Programmene ble da kompilert med Intel-kompilatoren for det korresponderende språket. Programmene ble kompilert med optimaliseringsflagg \emph{O3}. Alle testene vi kjørte benyttet seg av disse instillingene, og for å regulere bruken av MPI og OpenMP brukte vi løsningen beskrevet i paragrafen om \emph{Flagg for MPI og OpenMP} i seksjon \ref{section:programkomponenter}.
 
 \paragraph{Tidtakning}
-Alle våre tidsmålinger er resulat av følgende prosess: Programmet ble kjørt ti ganger, de to minste og de to største verdiene ble forkastet, og gjennomsnittet av de seks resterende tidene ble brukt.
+Alle våre tidsmålinger er resulat av følgende prosess: Programmet ble kjørt ti ganger, de to minste og de to største verdiene ble forkastet, og gjennomsnittet av de seks resterende tidene ble brukt. Start og slutt-tidspunkt for algoritmen blir regulert av \emph{MPI\_Barrier}, og utregning av maks feil er ikke med i tidtakningen.
+
 
 
 \subsection{Kjøretid med forskellige p*t = 36}
@@ -242,21 +244,20 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 	\begin{tabular}{c | c | c}
 	\hline \hline 
 	Antall prosesser      &    Antall tråder     &    Kjøretid (i sekunder) 	    \\ \hline	
-	12		      &		1	     &	  32.690540       		    \\ \hline
-	6		      &         2	     &    32.975599       		    \\ \hline
-	4		      &         3	     &    33.223129	    		    \\ \hline
-	3   		      &		2	     &    33.633001	    		    \\ \hline
-	2		      &         6	     &    34.279941	    		    \\ \hline
-	1		      &		12	     &    35.741616	    		    \\ \hline
+	36		      &		1	     &	  32.690540       		    \\ \hline
+	18		      &         2	     &    32.975599       		    \\ \hline
+	12		      &         3	     &    33.223129	    		    \\ \hline
+	9   		      &		2	     &    33.633001	    		    \\ \hline
+	6		      &         6	     &    34.279941	    		    \\ \hline
+	3		      &		12	     &    35.741616	    		    \\ \hline
 	
 	\end{tabular}
 \end{center}
-\caption{Kjøretider gitt forskjellige kompinasjoner av \emph{p} og \emph{t}.}
+\caption{Kjøretider gitt forskjellige kombinasjoner av \emph{p} og \emph{t}.}
 \label{p/t-table}
 \end{table}
 
-Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder. Så i dette tilfellet lønner det seg dermed å kjøre programmene med kun en tråd. 
-Testene som følger denne vil dermed kun bruke en tråd og heller variere antall prosesser. 
+Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder, og at vi mister parallelitet i kommunikasjonen mellom prosessene (\emph{MPI\_Alltoallv} må kjøres serielt per kjerne). Så i dette tilfellet lønner det seg derfor å kjøre programmene med kun en tråd, siden MPI fordeler lasten på en bedre måte enn OpenMP. Vi er overbeviste om at flertrådsløsningen kan optimaliseres ytterligere, men at dette ikke er trivielt. Vi har derfor valgt å gjøre påfølgende tester med én tråd ($t=1$), og la MPI ta seg av lastbalanseringen.
 
 \subsection{Verifisering av korrekthet - Konvergenstester}
 \begin{figure}[t]
@@ -268,11 +269,11 @@ Testene som følger denne vil dermed kun bruke en tråd og heller variere antall
 	
 \end{figure}
 
-Samtidig med testingen utført i seksjon \ref{subsection:runtime}, verifiserte vi også at de samme $p$- og $t$-verdier gav riktige resultater. Vi kjørte \emph{convergence} på intervallet n=8 til n=16384 og plottet resultatene opp mot ${1 \over x^2}$ i et log-log-plot. Dersom linjen som viser maksimal feil er parallell med referansefunksjonen, kan vi konkludere med at løsningen konvergerer og er følgelig korrekt. Samtlige kjøringer med ulike $p$- og $t$-verdier konvergerte. Kjøring med ($p=12$, $t=3$) og ($p=36$, $t=1$) er vist i figur \ref{fig:convergence}.
+Samtidig med testingen utført i seksjon \ref{subsection:runtime}, verifiserte vi også at de samme $p$- og $t$-verdier gav riktige resultater. Vi kjørte \emph{convergence} på intervallet n=8 til n=16384 og plottet resultatene opp mot ${1 \over x^2}$ i et log-log-plot. Dersom linjen som viser maksimal feil er parallell med referansefunksjonen, kan vi konkludere med at løsningen konvergerer og følgelig er korrekt. Samtlige kjøringer med ulike $p$- og $t$-verdier konvergerte. Kjøring med ($p=12$, $t=3$) og ($p=36$, $t=1$) er vist i figur \ref{fig:convergence}.
 
 \subsection{Speedup og effektivitet}
 
-Speedup sier noe om hvilken faktor vi ønsker at kjøretiden skal bli redusert med. Speedup er definert i ligning \ref{speedup}, der $S_p$ er speedupen, $T_1$ er kjøretiden på en prosess og $T_p$ er kjøretiden på P prosesser. Det vi ser i ligning \ref{speedup} er det vi kaller perfekt speedup, som vil si at kjøretiden reduseres med en faktor proporsjonal med antall prosesser. Gitt perfekt speedup ser vi da at $T_p$ må være definert som kjøretiden på en prosess, $T_1$, dividert med antall prosesser P som vist i ligning \ref{t_p}.  
+Speedup sier noe om hvilken faktor vi ønsker at kjøretiden skal bli redusert med. Speedup er definert i ligning \ref{speedup}, der $S_p$ er speedupen, $T_1$ er kjøretiden på en prosess og $T_p$ er kjøretiden på $P$ prosesser. Det vi ser i ligning \ref{speedup} er det vi kaller perfekt speedup, som vil si at kjøretiden reduseres med en faktor proporsjonal med antall prosesser. Gitt perfekt speedup ser vi da at $T_p$ må være definert som kjøretiden på en prosess, $T_1$, dividert med antall prosesser P som vist i ligning \ref{t_p}.  
 
 \begin{equation}
 	\label{speedup}
@@ -298,20 +299,14 @@ Hvis vi antar perfekt speedup og siden vi gjør to transponeringer, kan en ved h
 	S_{p}^{theoretical} = {P \over 1 + 2(\kappa + \gamma 8N^{2})}, \text{der $\kappa$ = $10^{-6}$, $\gamma$ = $10^{-10}$}
 \end{equation}
 
+
+I ligning \ref{theo_s} har vi også antatt at prosessene sender data til seg selv. Selv om noen av elementene ikke vil bli sendt over nettverk, vil antall bytes i data være avhengig av problemstørrelsen. Dermed har vi sett bort ifra de små datamengdene som blir igjen hos hver prosess. Den teoretiske speedupen er et mer realistisk mål å oppnå, da den tar med overheaded ved dataoverføring. \\ 
+
 \begin{equation}
 	\label{eff}
 	\eta_{p} = {S_{p} \over P} 
 \end{equation}
-
-I ligning \ref{theo_s} har vi også antatt at prosessene sender data til seg selv. Selv om noen av elementene ikke vil bli sendt over nettverk, vil antall bytes i data være avhengig av problemstørrelsen. Dermed har vi sett bort ifra de små datamengdene som blir igjen hos hver prosess. Den teoretiske speedupen er et mer realistisk mål å oppnå, da den tar med overheaded ved dataoverføring. \\ 
-
 Effektiviteten er definert som speedup dividert med antall prosesser, vist i ligning \ref{eff}. \\ 
-
-Figur \ref{fig:speedup} og figur \ref{fig:eff} viser speedupen og effektiviteten for forskjellige antall prosesser for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for N = 16384. I figur \ref{fig:eff} har vi også fjernet de to laveste problemstørrelsene vi kjørte målingene på. Vi synes de bare var i veien i figuren og at dataene vist er mer en nok for å trekke ut nødvendig informasjon. \\
-
-Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. Ved små problemstørrelser ser vi litt mer varierte resultat. Grunnen er at overheaded ved sending av informasjon blir for stort sett mot problemstørrelsen. 
-
-Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
 
 \begin{figure}[t]
 	\centering
@@ -327,6 +322,11 @@ Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette 
 	\caption{Effektivitet}		
 	\label{fig:eff}
 \end{figure}
+
+Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} viser speedupen for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
+\\
+Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
+
 
 \begin{figure}[t]
 	\centering
