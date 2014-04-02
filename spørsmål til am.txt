@@ -1,1 +1,2 @@
-Er det beskrivelse av FST og hvordan løse dette kodemessig, eller er det beskrivelse av poisson og hvilke metoder vi har for å løse poisson?
+- Må vi ha med teoretisk modell på beregning av tid med nettverk?
+- Hva må være i rapporten av data? Alle tre tabeller?
