@@ -323,24 +323,19 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 	\label{fig:eff}
 \end{figure}
 
-Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} viser speedupen for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
-\\
-Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
-Figur \ref{fig:speedup} og figur \ref{fig:eff} viser speedupen og effektiviteten for forskjellige antall prosesser for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for N = 16384. I figur \ref{fig:eff} har vi også fjernet de to laveste problemstørrelsene vi kjørte målingene på. Vi synes de bare var i veien i figuren og at dataene vist er mer en nok for å trekke ut nødvendig informasjon. \\
-
-
-Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. Ved små problemstørrelser ser vi litt mer varierte resultat. Grunnen er at overheaded ved sending av informasjon blir for stort sett mot problemstørrelsen. 
-
-Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
-
-
-
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=12cm]{img/time_p_96.png}
 	\caption{Tidsbruk ved 96 prosesser ved forskjellige k (n = $2^{k}$)}		
 	\label{fig:p96}
 \end{figure}
+
+Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} (dataene finnes i appendix bla). I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
+\\
+
+Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. \\
+
+Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}. Vi ser også at større problemstørrelse gir bedre speedup sammenlignet med mindre sett opp mot den teoretiske speedupen.  
 
 
 \section{Diskusjon}
