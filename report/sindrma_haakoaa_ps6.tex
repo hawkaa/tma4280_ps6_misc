@@ -169,28 +169,39 @@ Vi bestemte oss tidlig for at det var langt viktigere med et program som gav rik
 \paragraph{Tilstand}
 Alle funksjoner i \emph{ps6\_common\_library} er bevisst programmert uten tilstand, og dette fører ofte til at parameterlistene er ganske lange. Dette er kun for å forenkle enhetstestene våre. Vi er ikke kjent med overhead knyttet til parameterpassing kontra globalt definerte variabler, men vi antar at det er neglisjerbart.
 
+\paragraph{Flagg for MPI og OpenMP}
+Vi har dessverre ikke hatt fokus på å utvikle løsningen vår til å la seg kompilere uten OpenMP og/eller uten MPI. Preprosessorflaggene \emph{HAVE\_MPI} og \emph{HAVE\_OPENMP} blir brukt i noen sammenhenger, men er ikke konsekvente nok til å støtte at programmene kompileres uten at disse er på. For å kjøre programmet uten støtte for MPI har vi ikke benyttet oss av kommandoen \emph{mpirun} og for å kjøre programmet uten OpenMP har vi satt environmentvariabel \emph{OMP\_NUM\_THREADS} til 1.
+
 \subsection{ps\_6\_common\_library}
-Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire "inngangs"-funksjoner:
+Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire inngangsfunksjoner:
 \begin{itemize}
-	\item \emph{haha}
+	\item \emph{poisson\_parallel} - Denne funksjonen er vår paralelle implementasjon av det medfølgende poisson-programmet. Den tar inn en problemstørrelse $n$ og en funksjon $f$. Man har også mulighet til å sende inn en peker til en tidsvariabel, som vil fylles opp med tiden det tar fra algoritmen starter til den slutter. Til slutt, har du mulighet til å sende med en referansefunksjon $u$, og hvis denne er satt, vil funksjonen returnere maksimal feil i løsningen. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat. \emph{poisson\_parallel} blir beskrevet nøyere i seksjon \ref{section:poisson_parallel}
+	\item \emph{poisson} - Gjør akkurat det samme som \emph{poisson\_parallel}, med de samme parameterne. Denne er ikke konfigurert til å kjøre i paralell. Vi har valgt å ha med denne funksjonen, siden den har fungert som et nyttig sammenligningsgrunnlag under utviklingen.
+	\item \emph{transpose\_paralell} - Denne metoden transponerer en matrise i parallell. Denne metoden har vært svært nyttige for oss under utviklingen, da transponering i paralell var en stor og vanskelig del av oppgaven. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat.
+	\item \emph{transpose} - Seriell implementasjon av transponering.
 \end{itemize}
+Resten av koden i denne modulen er støttefunksjoner til de nevnte inngangsfunksjonene.
 
 \subsection{possion}
+Dette programmet tar inn en problemstørrelse og antall kjøringer. Den vil gi deg kjøretid for hver enkelt kjøring, samt maksimal feil. Til slutt vil den regne ut og printe gjennomsnittlig kjøretid,
 
 \subsection{convergence}
+Dette programmet tar inn et intervall med problemstørrelser, og printer maksimal feil per problemstørrelse. Dette er for å teste om løsningen vår er korrekt, det vil si at den konvergerer (hvis vi dobler n, skal feilen bli fire ganger så liten). For å visualisere dette grafisk, kan man kjøre \emph{make convergence-plot}. Dette krever at man har gnuplot installert på maskinen.
 
 \subsection{unittest}
 \label{subsection:unittest}
+Dette c++-programmet kjører enhetstester på funksjoner som kan testes i en seriell kontekst. Testene er tiltenkt å bli kjørt med kommandoen \emph{make test-unit}.
 
 \subsection{mpi\_unittest}
 \label{subsection:mpi_unittest}
-Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med \emph{mpirun}, og 
+Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med kommandoen \emph{make test-mpi}, som igjen kaller \emph{mpirun} med 8 prosesser.
 
 \subsection{poisson\_orig}
 Vi valgte å ta vare på det originale programmet vi fikk utlevert sammen med øvingen, slik at vi har et utgangpsunkt og mulighet til å sammenligne resultater.
 
 
 \section{Poisson\_parallel()}
+\label{section:poisson_parallel}
 
 \section{Tester og resultater}
 Med unntak av konvergenstestene, så ble testene gjennomført ved å kjøre programmet ti ganger. Den største og minste kjøretiden ble fjernet, og gjennomsnittet ble regnet ut. Koden for testene under ble kompilert med de samme instillingene, det vil si at både MPI og OpenMP var aktivert. 
