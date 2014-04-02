@@ -321,13 +321,6 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 	\label{fig:eff}
 \end{figure}
 
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=12cm]{img/time_p_96.png}
-	\caption{Tidsbruk ved 96 prosesser ved forskjellige k (n = $2^{k}$)}		
-	\label{fig:p96}
-\end{figure}
-
 Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} (dataene finnes i appendix bla). I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
 \\
 
@@ -346,7 +339,7 @@ Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette 
 	\caption{Gå fra $f=1$ til en hvilken som helst funksjon $f(x, y)$.}
 	\label{fig:local_f}
 \end{figure}
-For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe $x$- og $y$-verdier og multiplisere funksjonsverdiene inn i matrisen. For å få dette til å kjøre i parallell måtte vi gjøre noen små justeringer når det gjaldt mapping fra lokale indekser til $x$- og $y$-verdier. Hver prossess lagrer kun sine egne rader, og en indeks til en rad i sin delvise (lokale) matrise vil mappe til en indeks i den fullstendige (globale) matrisen. Vi måtte derfor plusse på et offset på rad-indeksen når vi regnet ut verdien av $y$. Å gå fra $f=1$ til $f(x, y)$ fjerner med andre ord ikke noe parallelt potensiale, siden løkken som legger inn verdier i $\ub{B}$ ikke får noen avhengigheter som gjør at den ikke kan paralleliseres.
+For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe $x$- og $y$-verdier og multiplisere funksjonsverdiene inn i matrisen. For å få dette til å kjøre i parallell måtte vi gjøre noen små justeringer når det gjaldt mapping fra lokale indekser til $x$- og $y$-verdier. Hver prossess lagrer kun sine egne rader, og en indeks til en rad i sin delvise (lokale) matrise vil mappe til en indeks i den fullstendige (globale) matrisen. Vi måtte derfor plusse på et offset på rad-indeksen når vi regnet ut verdien av $y$. Se figur \ref{fig:local_f}. Å gå fra $f=1$ til $f(x, y)$ fjerner med andre ord ikke noe parallelt potensiale, siden løkken som legger inn verdier i $\ub{B}$ ikke får noen avhengigheter som gjør at den ikke kan paralleliseres.
 
 \subsection{Ikke-homogene Dirichlet grensebetingelser}
 \begin{figure}[h]
