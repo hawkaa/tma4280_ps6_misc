@@ -161,6 +161,7 @@ Generelt sett, drar iterative metoder fordel av at vi ikke lenger har noen krav 
 Eksempler på iterative metoder er \emph{Gauss-Jacobi}, \emph{Gauss-Seidel}, \emph{Generalized minimum residuial method} og \emph{Conjugate gradient method}. Brukt riktig, kan disse metodene være svært kraftige.
 
 \section{Programkomponenter}
+\label{section:programkomponenter}
 Rent overordnet har vi valgt å skrive nesten all kode i et felles bibliotek, og koblet på flere små programmer med ulike bruksområder. Det blir ingen nøye gjennomgang av koden i denne rapporten, da det befinner seg mange gode og beskrivende kommentarer der. Flere av funksjonene implementert regnes også som kjent av leseren av dette dokumentet, siden de er beskrevet i \cite{fast-poisson}. Det anbefales også å ta en titt på testene (beskrevet i seksjon \ref{subsection:unittest} og \ref{subsection:mpi_unittest}) for å få en dypere forståelse for input og forventet output.
 
 \paragraph{Testing}
@@ -169,36 +170,70 @@ Vi bestemte oss tidlig for at det var langt viktigere med et program som gav rik
 \paragraph{Tilstand}
 Alle funksjoner i \emph{ps6\_common\_library} er bevisst programmert uten tilstand, og dette fører ofte til at parameterlistene er ganske lange. Dette er kun for å forenkle enhetstestene våre. Vi er ikke kjent med overhead knyttet til parameterpassing kontra globalt definerte variabler, men vi antar at det er neglisjerbart.
 
+\paragraph{Flagg for MPI og OpenMP}
+Vi har dessverre ikke hatt fokus på å utvikle løsningen vår til å la seg kompilere uten OpenMP og/eller uten MPI. Preprosessorflaggene \emph{HAVE\_MPI} og \emph{HAVE\_OPENMP} blir brukt i noen sammenhenger, men er ikke konsekvente nok til å støtte at programmene kompileres uten at disse er på. For å kjøre programmet uten støtte for MPI har vi ikke benyttet oss av kommandoen \emph{mpirun} og for å kjøre programmet uten OpenMP har vi satt environmentvariabel \emph{OMP\_NUM\_THREADS} til 1.
+
 \subsection{ps\_6\_common\_library}
-Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire "inngangs"-funksjoner:
+Denne programkomponenten inneholder mesteparten av koden for denne oppgaven. Den inneholder fire inngangsfunksjoner:
 \begin{itemize}
-	\item \emph{haha}
+	\item \emph{poisson\_parallel} - Denne funksjonen er vår paralelle implementasjon av det medfølgende poisson-programmet. Den tar inn en problemstørrelse $n$ og en funksjon $f$. Man har også mulighet til å sende inn en peker til en tidsvariabel, som vil fylles opp med tiden det tar fra algoritmen starter til den slutter. Til slutt, har du mulighet til å sende med en referansefunksjon $u$, og hvis denne er satt, vil funksjonen returnere maksimal feil i løsningen. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat. \emph{poisson\_parallel} blir beskrevet nøyere i seksjon \ref{section:poisson_parallel}
+	\item \emph{poisson} - Gjør akkurat det samme som \emph{poisson\_parallel}, med de samme parameterne. Denne er ikke konfigurert til å kjøre i paralell. Vi har valgt å ha med denne funksjonen, siden den har fungert som et nyttig sammenligningsgrunnlag under utviklingen.
+	\item \emph{transpose\_paralell} - Denne metoden transponerer en matrise i parallell. Denne metoden har vært svært nyttige for oss under utviklingen, da transponering i paralell var en stor og vanskelig del av oppgaven. Funksjonen skal bli kalt fra alle MPI-prosesser i en MPI-kontekst, men kun prosess 0 vil ha gyldig resultat.
+	\item \emph{transpose} - Seriell implementasjon av transponering.
 \end{itemize}
+Resten av koden i denne modulen er støttefunksjoner til de nevnte inngangsfunksjonene.
 
 \subsection{possion}
+Dette programmet tar inn en problemstørrelse og antall kjøringer. Den vil gi deg kjøretid for hver enkelt kjøring, samt maksimal feil. Til slutt vil den regne ut og printe gjennomsnittlig kjøretid,
 
 \subsection{convergence}
+Dette programmet tar inn et intervall med problemstørrelser, og printer maksimal feil per problemstørrelse. Dette er for å teste om løsningen vår er korrekt, det vil si at den konvergerer (hvis vi dobler n, skal feilen bli fire ganger så liten). For å visualisere dette grafisk, kan man kjøre \emph{make convergence-plot}. Dette krever at man har gnuplot installert på maskinen.
+
+\subsection{poisson\_speedup}
 
 \subsection{unittest}
 \label{subsection:unittest}
+Dette c++-programmet kjører enhetstester på funksjoner som kan testes i en seriell kontekst. Testene er tiltenkt å bli kjørt med kommandoen \emph{make test-unit}.
 
 \subsection{mpi\_unittest}
 \label{subsection:mpi_unittest}
-Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med \emph{mpirun}, og 
+Dette programmet kjører enhetstester på funksjoner i \emph{ps\_6\_common\_library} som krever å bli kjørt i parallell med MPI. Den eneste funksjonen som testes i denne modulen, er \emph{transpose\_parallel}. Vi har valgt å ta ut testing av MPI-kode, siden vi ikke enkelt fikk \emph{Google Test} til å gi output på kun prosessor 0. Resultatet av denne testen er derfor rotete og vanskelig å lese. Testen kjøres med kommandoen \emph{make test-mpi}, som igjen kaller \emph{mpirun} med 8 prosesser.
 
 \subsection{poisson\_orig}
 Vi valgte å ta vare på det originale programmet vi fikk utlevert sammen med øvingen, slik at vi har et utgangpsunkt og mulighet til å sammenligne resultater.
 
 
-\section{Poisson\_parallel()}
+\section{poisson\_parallel()}
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=10cm]{img/poisson_parallel.png}	
+	\caption{Parallell profil av \emph{poisson\_parallel()} med MPI og OpenMP.}
+	\label{fig:poisson-parallel}
+	
+\end{figure}
+\label{section:poisson_parallel}
+Siden dette er den desidert viktigste funksjonen i vårt program, krever den en litt grundigere gjennomgang. For å parallelisere den utdelte koden har vi delt opp den store globale matrisen $\ub{B}$, og tildelt hver prosess rader fra denne. Siden den utleverte \emph{fst}-metoden kun krever at elementene ligger etter hverandre i minnet, trenger ingen endringer å bli gjort her, og prosedyren kjøres på hver enkelt rad.\\
+\\
+For å transponere matrisen i en parallell kontekst, har vi fulgt veiledningen i \cite{fast-poisson}. Denne går ut på å utnytte \emph{MPI\_Alltoallv}-kallet til å få alle prosesser til å sende og motta data fra hverandre. For å få til dette må man lage sendebuffere med tilhørende størrelses- og forskyvningsvektorer.\\
+\\
+For å paralellisere med OpenMP, har vi slått sammen så mange løkker som mulig og dekorert disse med \emph{\#pragma omp parallel for}. I tillegg til dette, må vi utvide lagringsplassen til det midlertidige \emph{fst}-bufferet $z$, slik at hver tråd får sitt eget buffer. Dette er gjort ved hjelp av OpenMP-kallene \emph{omp\_get\_max\_threads()} og \emph{omp\_get\_thread\_num()}.\\
+\\
+Hybrid-løsningen med både MPI og OpenMP, har totalt tre fork/joins og to alle-til-alle kommunikasjonsbolker. Profilen er vist i figur \ref{fig:poisson-parallel}. 
 
 \section{Tester og resultater}
-Med unntak av konvergenstestene, så ble testene gjennomført ved å kjøre programmet ti ganger. Den største og minste kjøretiden ble fjernet, og gjennomsnittet ble regnet ut. Koden for testene under ble kompilert med de samme instillingene, det vil si at både MPI og OpenMP var aktivert. 
-Det vil si at vi kjørte programmene med \emph{mpirun} og heller varierte parameterene vi sendte med til kjøringen. Vi ville heller kjøre testene på en ekvivalent måte, enn å ha forsjellige måter å kjøre programmet på gitt forskjellige parametre. 
 
-\subsection{Konvergens med ulik p}
+\paragraph{Hardware}
+Alle våre tester er kjørt på Kongull-clusteret. Dette clusteret benytter seg av CentOS 5.3 med Rocks på HP-servere, og består av 93 beregningsnoder. Hver node har 2x6-kjerner 2.4 GHz AMD Opteron 2431 (Istanbul)-prosessorer og 24 GiB minne. For flere detaljer, se \cite{kongull-hardware}.  
+
+\paragraph{Kompilering og biblioteker}
+Ved kompilering, hadde vi lastet inn modulene \emph{intelcomp/11.1.059}, \emph{cmake/2.8.7} og \emph{openmpi/1.4.3-intel}. CMake ble konfigurert med \emph{CMAKE\_BUILD\_TYPE=1}, \emph{ENABLE\_OPENMP=1} og \emph{ENABLE\_MPI=1}, og gitt environmentvariablene \emph{CC=icc}, \emph{CXX=icpc} og \emph{FC=ifort}. Programmene ble da kompilert med Intel-kompilatoren for det korresponderende språket. Programmene ble kompilert med optimaliseringsflagg \emph{O3}. Alle testene vi kjørte benyttet seg av disse instillingene, og for å regulere bruken av MPI og OpenMP brukte vi løsningen beskrevet i paragrafen om \emph{Flagg for MPI og OpenMP} i seksjon \ref{section:programkomponenter}.
+
+\paragraph{Tidtakning}
+Alle våre tidsmålinger er resulat av følgende prosess: Programmet ble kjørt ti ganger, de to minste og de to største verdiene ble forkastet, og gjennomsnittet av de seks resterende tidene ble brukt.
+
 
 \subsection{Kjøretid med forskellige p*t = 36}
+\label{subsection:runtime}
 Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. Resultatet er vist i tabell \ref{p/t-table}.
 
 \begin{table}
@@ -223,6 +258,17 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder. Så i dette tilfellet lønner det seg dermed å kjøre programmene med kun en tråd. 
 Testene som følger denne vil dermed kun bruke en tråd og heller variere antall prosesser. 
 
+\subsection{Verifisering av korrekthet - Konvergenstester}
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=8cm]{img/convergence.png}	
+	\includegraphics[width=8cm]{img/convergence.png}	
+	\caption{Konvergenstester med ($p=12$, $t=3$) og ($p=36$, $t=1$).}
+	\label{fig:convergence}
+	
+\end{figure}
+
+Samtidig med testingen utført i seksjon \ref{subsection:runtime}, verifiserte vi også at de samme $p$- og $t$-verdier gav riktige resultater. Vi kjørte \emph{convergence} på intervallet n=8 til n=16384 og plottet resultatene opp mot ${1 \over x^2}$ i et log-log-plot. Dersom linjen som viser maksimal feil er parallell med referansefunksjonen, kan vi konkludere med at løsningen konvergerer og er følgelig korrekt. Samtlige kjøringer med ulike $p$- og $t$-verdier konvergerte. Kjøring med ($p=12$, $t=3$) og ($p=36$, $t=1$) er vist i figur \ref{fig:convergence}.
 
 \subsection{Speedup og effektivitet}
 
