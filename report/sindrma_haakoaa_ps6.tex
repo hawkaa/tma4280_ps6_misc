@@ -236,8 +236,6 @@ Alle våre tidsmålinger er resulat av følgende prosess: Programmet ble kjørt 
 
 \subsection{Kjøretid med hybrid løsning}
 \label{subsection:runtime}
-Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. Resultatet er vist i tabell \ref{p/t-table}.
-
 \begin{table}
 \begin{center}
 	
@@ -253,11 +251,11 @@ Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t}
 	
 	\end{tabular}
 \end{center}
-\caption{Kjøretider gitt forskjellige kombinasjoner av \emph{p} og \emph{t}.}
+\caption{Kjøretider med $n = 16384$ gitt forskjellige kombinasjoner av \emph{p} og \emph{t}.}
 \label{p/t-table}
 \end{table}
 
-Som tabell \ref{p/t-table} viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder, og at vi mister parallelitet i kommunikasjonen mellom prosessene (\emph{MPI\_Alltoallv} må kjøres serielt per kjerne). Så i dette tilfellet lønner det seg derfor å kjøre programmene med kun en tråd, siden MPI fordeler lasten på en bedre måte enn OpenMP. Vi er overbeviste om at flertrådsløsningen kan optimaliseres ytterligere, men at dette ikke er trivielt. Vi har derfor valgt å gjøre påfølgende tester med én tråd ($t=1$), og la MPI ta seg av lastbalanseringen.
+Denne testen ble gjennomført for noen kombinasjoner som gir \emph{p} * \emph{t} = 36. På testene var $n = 16384$. Resultatet er vist i tabell \ref{p/t-table}. Som tabellen viser, er det faktisk negativt å bruke en hybrid-løsning. Vi ser at kjøretiden blir litt større jo flere tråder vi bruker. Grunnen er at det koster å opprette og samle tråder, og at vi mister parallelitet i kommunikasjonen mellom prosessene (\emph{MPI\_Alltoallv} må kjøres serielt per kjerne). Så i dette tilfellet lønner det seg derfor å kjøre programmene med kun en tråd, siden MPI fordeler lasten på en bedre måte enn OpenMP. Vi er overbeviste om at flertrådsløsningen kan optimaliseres ytterligere, men at dette ikke er trivielt. Vi har derfor valgt å gjøre påfølgende tester med én tråd ($t=1$), og la MPI ta seg av paralleliseringen.
 
 \subsection{Verifisering av korrekthet - Konvergenstester}
 \begin{figure}[t]
@@ -323,13 +321,6 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 	\label{fig:eff}
 \end{figure}
 
-\begin{figure}[t]
-	\centering
-	\includegraphics[width=12cm]{img/time_p_96.png}
-	\caption{Tidsbruk ved 96 prosesser ved forskjellige k (n = $2^{k}$)}		
-	\label{fig:p96}
-\end{figure}
-
 Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} (dataene finnes i appendix bla). I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
 \\
 
@@ -348,7 +339,7 @@ Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette 
 	\caption{Gå fra $f=1$ til en hvilken som helst funksjon $f(x, y)$.}
 	\label{fig:local_f}
 \end{figure}
-For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe $x$- og $y$-verdier og multiplisere funksjonsverdiene inn i matrisen. For å få dette til å kjøre i parallell måtte vi gjøre noen små justeringer når det gjaldt mapping fra lokale indekser til $x$- og $y$-verdier. Hver prossess lagrer kun sine egne rader, og en indeks til en rad i sin delvise (lokale) matrise vil mappe til en indeks i den fullstendige (globale) matrisen. Vi måtte derfor plusse på et offset på rad-indeksen når vi regnet ut verdien av $y$. Å gå fra $f=1$ til $f(x, y)$ fjerner med andre ord ikke noe parallelt potensiale, siden løkken som legger inn verdier i $\ub{B}$ ikke får noen avhengigheter som gjør at den ikke kan paralleliseres.
+For å håndtere en hvilken som helst todimensjonal funksjon $f(x, y)$, var det eneste som måtte gjøres å fylle ut $\ub{B}$ med verdier fra denne funksjonen. Her måtte vi bruke de lokale indeksene for å mappe $x$- og $y$-verdier og multiplisere funksjonsverdiene inn i matrisen. For å få dette til å kjøre i parallell måtte vi gjøre noen små justeringer når det gjaldt mapping fra lokale indekser til $x$- og $y$-verdier. Hver prossess lagrer kun sine egne rader, og en indeks til en rad i sin delvise (lokale) matrise vil mappe til en indeks i den fullstendige (globale) matrisen. Vi måtte derfor plusse på et offset på rad-indeksen når vi regnet ut verdien av $y$. Se figur \ref{fig:local_f}. Å gå fra $f=1$ til $f(x, y)$ fjerner med andre ord ikke noe parallelt potensiale, siden løkken som legger inn verdier i $\ub{B}$ ikke får noen avhengigheter som gjør at den ikke kan paralleliseres.
 
 \subsection{Ikke-homogene Dirichlet grensebetingelser}
 \begin{figure}[h]
@@ -367,7 +358,7 @@ For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det f
 Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske domenet, ikke det logiske. Det er derfor ingen endringer som må gjøres i FST-algoritmen eller i utregning av diagonalen. Siden vi benytter oss av en direkte metode, vil vi ikke lide av ytelsestap, noe iterative metoder ofte gjør.
 
 \subsection{Flaskehalser}
-Flaskehalsen i denne løsningen er definitivt transponeringen
+Flaskehalsen i denne løsningen er definitivt transponeringen. I løpet av algoritmen må hver prosess distribuere ut alle matriseelementete til alle de andre prosessene. Vi ser i ligning \ref{theo_s} at den teoretiske speedupen synker raskt ved økning av problemstørrelser. Det er mulig man kan gjøre små modifikasjoner i funksjonene i \emph{ps6\_common\_library}, men disse endringene vil ikke være dominante.
 
 \input{sections/bibliography.tex}
 \end{document}
