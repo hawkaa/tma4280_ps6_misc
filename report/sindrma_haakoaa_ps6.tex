@@ -321,9 +321,10 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 	\label{fig:eff}
 \end{figure}
 
-Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} (dataene finnes i appendix bla). I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
+For å regne på disse verdiene, kjørte vi en rekke tester med forskjellig $p$ og $n$. Resultatene finnes i appendix, tabell \ref{table:wow_so_much_data}. På samtlige tester var $t=1$, som vi konluderte med etter å ha kjørt testen i seksjon \ref{subsection:runtime}.\\
 \\
-
+Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} fra disse kjøringene. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Grunnen til at vi valgte den største problemstørrelsen er at det ut ifra resultatene så ut som større problemstørrelse gav bedre tilnærming til speedupen. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater, siden overheadet blir neglisjerbart.\\
+\\
 Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. \\
 
 Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}. Vi ser også at større problemstørrelse gir bedre speedup sammenlignet med mindre sett opp mot den teoretiske speedupen.  
@@ -361,4 +362,27 @@ Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske d
 Flaskehalsen i denne løsningen er definitivt transponeringen. I løpet av algoritmen må hver prosess distribuere ut alle matriseelementete til alle de andre prosessene. Vi ser i ligning \ref{theo_s} at den teoretiske speedupen synker raskt ved økning av problemstørrelser. Det er mulig man kan gjøre små modifikasjoner i funksjonene i \emph{ps6\_common\_library}, men disse endringene vil ikke være dominante.
 
 \input{sections/bibliography.tex}
+
+\section{Appendix}
+\begin{table}[h]
+\label{table:wow_so_much_data}
+\tiny
+\begin{tabular}{c | c c c c c c c c c c c c c c c }
+&1&2&4&8&12&24&36&48&96\\
+\hline
+8&5.40E-005&3.63E-005&1.04E-004&6.26E-005&6.42E-005&2.61E-004&2.47E-004&3.79E-004&1.23E-003\\
+16&2.66E-004&1.48E-004&2.69E-004&8.95E-005&1.47E-004&7.60E-004&9.69E-004&9.68E-004&1.03E-003\\
+32&1.25E-003&6.55E-004&1.03E-003&2.12E-004&2.17E-004&2.22E-003&3.57E-003&3.68E-003&3.74E-003\\
+64&5.72E-003&2.92E-003&3.18E-003&7.83E-004&6.23E-004&2.53E-003&5.17E-003&2.53E-001&5.77E+000\\
+128&2.61E-002&1.38E-002&6.72E-003&3.35E-003&2.35E-003&3.31E-003&5.41E-003&2.17E-001&1.03E+001\\
+256&1.18E-001&6.15E-002&3.09E-002&1.73E-002&1.04E-002&7.49E-003&7.63E-003&2.38E-001&2.89E+000\\
+512&5.18E-001&2.60E-001&1.34E-001&7.24E-002&7.18E-002&3.12E-002&4.00E-002&1.99E-002&8.02E-001\\
+1024&2.31E+000&1.15E+000&5.79E-001&2.94E-001&3.18E-001&1.31E-001&1.48E-001&7.90E-002&3.02E-001\\
+2048&1.01E+001&5.04E+000&2.54E+000&1.27E+000&1.12E+000&5.87E-001&7.31E-001&6.15E-001&5.34E-001\\
+4096&4.48E+001&2.22E+001&1.12E+001&5.62E+000&3.79E+000&2.52E+000&1.88E+000&1.83E+000&1.79E+000\\
+8192&1.93E+002&9.61E+001&4.80E+001&2.40E+001&1.62E+001&1.06E+001&7.80E+000&6.69E+000&3.77E+000\\
+16384&8.25E+002&4.13E+002&2.08E+002&1.04E+002&6.94E+001&4.48E+001&3.27E+001&2.55E+001&1.37E+001\\
+\end{tabular}
+\caption{Kjøretider med ulike problemstørrelser for forskjellig antall prosesser.}
+\end{table}
 \end{document}
