@@ -326,6 +326,13 @@ Effektiviteten er definert som speedup dividert med antall prosesser, vist i lig
 Vi har plottet speedupen i figur \ref{fig:speedup} og effektiviteten i figur \ref{fig:eff} viser speedupen for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for den største problemstørrelsen i kjøringene ($n = 16384$), utregnet ved hjelp av ligning \ref{theo_s}. Vi har i begge figurene fjernet de mindre problemstørrelsene, siden disse dataene var fulle av støy. Det er først ved større problemstørrelser vi får mer konsekvente resultater (overheadet blir neglisjerbart).\\
 \\
 Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
+Figur \ref{fig:speedup} og figur \ref{fig:eff} viser speedupen og effektiviteten for forskjellige antall prosesser for dataene i tabell bla og tabell bla i appendix bla1. I figurene har vi også tatt med teoretisk speedup og effektivitet for N = 16384. I figur \ref{fig:eff} har vi også fjernet de to laveste problemstørrelsene vi kjørte målingene på. Vi synes de bare var i veien i figuren og at dataene vist er mer en nok for å trekke ut nødvendig informasjon. \\
+
+
+Som vi ser ut ifra figur \ref{fig:p96}, vil det ved store problemstørrelser bli en tilnærmet firedobling i tidsbruk. Dette er et absolutt forventet resultat. Ved små problemstørrelser ser vi litt mer varierte resultat. Grunnen er at overheaded ved sending av informasjon blir for stort sett mot problemstørrelsen. 
+
+Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette ser en utifra figur \ref{fig:speedup}.
+
 
 
 \begin{figure}[t]
@@ -336,7 +343,7 @@ Vi ser også at speedupen blir bedre jo større problemstørrelse vi har. Dette 
 \end{figure}
 
 
-\section{Diskusjon og konklusjon}
+\section{Diskusjon}
 
 
 \subsection{Å gå bort fra $f=1$}
@@ -363,7 +370,9 @@ Siden vi benytter oss av \emph{Fast Sine Transform} i denne oppgaven, må vi ogs
 For å ta høyde for domener som ikke er definert som et enhetskvadrat, er det flere ting som må gjøres. For det første må vi gjøre om $h$ til $h_x = {L_x \over n}$ og $h_y = {L_y \over n}$. Mappingen på linjene 2 og 3 i figur \ref{fig:local_f} måtte da justeres til å ta høyde for disse ved å multiplisere hver indeks med korresponderende $h$-verdi i stedet for å dividere på $n$. I tillegg vil vi ikke lenger kunne multiplisere inn $h^2$ i steg 1, så steg 2 må modifiseres til å håndtere dette.\\
 \\
 Det er viktig å understreke at endring av $\Omega$ kun endrer på det fysiske domenet, ikke det logiske. Det er derfor ingen endringer som må gjøres i FST-algoritmen eller i utregning av diagonalen. Siden vi benytter oss av en direkte metode, vil vi ikke lide av ytelsestap, noe iterative metoder ofte gjør.
-\subsection{Forslag til forbedringer}
+
+\subsection{Flaskehalser}
+Flaskehalsen i denne løsningen er definitivt transponeringen
 
 \input{sections/bibliography.tex}
 \end{document}
